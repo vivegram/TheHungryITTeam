@@ -1,6 +1,33 @@
+// app.js
 import React, { useState, useEffect } from 'react';
+import { 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged 
+} from "firebase/auth";
+import { 
+  collection, 
+  addDoc, 
+  getDocs, 
+  query, 
+  where,
+  doc,
+  deleteDoc,
+  setDoc 
+} from "firebase/firestore";
+import { auth, db } from './firebase';
 
 const LunchPlannerApp = () => {
+  // User authentication state
+  const [user, setUser] = useState(null);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [authError, setAuthError] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  // App state
   const [preferences, setPreferences] = useState([]);
   const [newPreference, setNewPreference] = useState('');
   const [userName, setUserName] = useState('');
@@ -10,9 +37,21 @@ const LunchPlannerApp = () => {
   const [favorites, setFavorites] = useState([]);
   const [newRestaurant, setNewRestaurant] = useState('');
   const [showFavorites, setShowFavorites] = useState(false);
-  const [shareLink, setShareLink] = useState('');
-  const [importData, setImportData] = useState('');
-  const [showImport, setShowImport] = useState(false);
+
+  // Listen for auth state changes
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
+      
+      if (currentUser) {
+        // Load data when user logs in
+        loadUserData(currentUser.uid);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   // Set default date to today
   useEffect(() => {
@@ -21,51 +60,185 @@ const LunchPlannerApp = () => {
     setSelectedDate(formattedDate);
   }, []);
 
-  // Functions for managing preferences
-  const addPreference = () => {
-    if (newPreference.trim() === '') return;
+  // Handle authentication
+  const handleAuth = async (e) => {
+    e.preventDefault();
+    setAuthError('');
     
-    const newEntry = {
-      id: Date.now(),
-      text: newPreference,
-      user: selectedUser,
-      date: selectedDate,
-      timestamp: new Date().toLocaleString()
-    };
-    
-    setPreferences([...preferences, newEntry]);
-    setNewPreference('');
+    try {
+      if (isRegistering) {
+        // Register new user
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        // Initialize user data
+        await setDoc(doc(db, "users", userCredential.user.uid), {
+          email: userCredential.user.email,
+          createdAt: new Date()
+        });
+      } else {
+        // Login existing user
+        await signInWithEmailAndPassword(auth, email, password);
+      }
+      
+      // Clear form
+      setEmail('');
+      setPassword('');
+    } catch (error) {
+      setAuthError(error.message);
+    }
   };
 
-  const deletePreference = (id) => {
-    setPreferences(preferences.filter(preference => preference.id !== id));
+  // Handle logout
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      setPreferences([]);
+      setFavorites([]);
+    } catch (error) {
+      console.error("Error signing out: ", error);
+    }
   };
 
-  // Functions for managing users
-  const addNewUser = () => {
-    if (userName.trim() === '') return;
+  // Load user data from Firestore
+  const loadUserData = async (userId) => {
+    try {
+      // Load preferences
+      const preferencesQuery = query(collection(db, "preferences"), where("userId", "==", userId));
+      const preferencesSnapshot = await getDocs(preferencesQuery);
+      const preferencesData = preferencesSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setPreferences(preferencesData);
+      
+      // Load favorites
+      const favoritesQuery = query(collection(db, "favorites"), where("userId", "==", userId));
+      const favoritesSnapshot = await getDocs(favoritesQuery);
+      const favoritesData = favoritesSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setFavorites(favoritesData);
+      
+      // Load team users
+      const usersQuery = query(collection(db, "teamUsers"), where("createdBy", "==", userId));
+      const usersSnapshot = await getDocs(usersQuery);
+      if (!usersSnapshot.empty) {
+        const usersData = usersSnapshot.docs[0].data();
+        if (usersData.names && usersData.names.length > 0) {
+          setUsers(usersData.names);
+        }
+      }
+    } catch (error) {
+      console.error("Error loading user data: ", error);
+    }
+  };
+
+  // Add preference to Firestore
+  const addPreference = async () => {
+    if (newPreference.trim() === '' || !user) return;
+    
+    try {
+      const newEntry = {
+        text: newPreference,
+        user: selectedUser,
+        date: selectedDate,
+        timestamp: new Date().toISOString(),
+        userId: user.uid
+      };
+      
+      const docRef = await addDoc(collection(db, "preferences"), newEntry);
+      
+      setPreferences([...preferences, {
+        id: docRef.id,
+        ...newEntry,
+        timestamp: new Date().toLocaleString() // For display
+      }]);
+      
+      setNewPreference('');
+    } catch (error) {
+      console.error("Error adding preference: ", error);
+    }
+  };
+
+  // Delete preference from Firestore
+  const deletePreference = async (id) => {
+    if (!user) return;
+    
+    try {
+      await deleteDoc(doc(db, "preferences", id));
+      setPreferences(preferences.filter(preference => preference.id !== id));
+    } catch (error) {
+      console.error("Error deleting preference: ", error);
+    }
+  };
+
+  // Add team member
+  const addNewUser = async () => {
+    if (userName.trim() === '' || !user) return;
     if (users.includes(userName)) return;
     
-    setUsers([...users, userName]);
+    const updatedUsers = [...users, userName];
+    setUsers(updatedUsers);
     setUserName('');
+    
+    try {
+      // Save to Firestore
+      const usersQuery = query(collection(db, "teamUsers"), where("createdBy", "==", user.uid));
+      const usersSnapshot = await getDocs(usersQuery);
+      
+      if (usersSnapshot.empty) {
+        // Create new document if none exists
+        await addDoc(collection(db, "teamUsers"), {
+          names: updatedUsers,
+          createdBy: user.uid
+        });
+      } else {
+        // Update existing document
+        const docId = usersSnapshot.docs[0].id;
+        await setDoc(doc(db, "teamUsers", docId), {
+          names: updatedUsers,
+          createdBy: user.uid
+        });
+      }
+    } catch (error) {
+      console.error("Error saving team users: ", error);
+    }
   };
 
-  // Functions for managing favorites
-  const addFavoriteRestaurant = () => {
-    if (newRestaurant.trim() === '') return;
+  // Add favorite restaurant to Firestore
+  const addFavoriteRestaurant = async () => {
+    if (newRestaurant.trim() === '' || !user) return;
     
-    const newFavorite = {
-      id: Date.now(),
-      name: newRestaurant,
-      user: selectedUser
-    };
-    
-    setFavorites([...favorites, newFavorite]);
-    setNewRestaurant('');
+    try {
+      const newFavorite = {
+        name: newRestaurant,
+        user: selectedUser,
+        userId: user.uid
+      };
+      
+      const docRef = await addDoc(collection(db, "favorites"), newFavorite);
+      
+      setFavorites([...favorites, {
+        id: docRef.id,
+        ...newFavorite
+      }]);
+      
+      setNewRestaurant('');
+    } catch (error) {
+      console.error("Error adding favorite: ", error);
+    }
   };
 
-  const deleteFavorite = (id) => {
-    setFavorites(favorites.filter(fav => fav.id !== id));
+  // Delete favorite from Firestore
+  const deleteFavorite = async (id) => {
+    if (!user) return;
+    
+    try {
+      await deleteDoc(doc(db, "favorites", id));
+      setFavorites(favorites.filter(fav => fav.id !== id));
+    } catch (error) {
+      console.error("Error deleting favorite: ", error);
+    }
   };
 
   const selectFavorite = (restaurantName) => {
@@ -77,34 +250,6 @@ const LunchPlannerApp = () => {
   
   // Filter favorites by user
   const userFavorites = favorites.filter(fav => fav.user === selectedUser);
-
-  // Export data as JSON string for sharing
-  const exportData = () => {
-    const data = {
-      preferences,
-      favorites,
-      users
-    };
-    
-    const jsonString = JSON.stringify(data);
-    setShareLink(jsonString);
-  };
-
-  // Import data from JSON string
-  const handleImport = () => {
-    try {
-      const data = JSON.parse(importData);
-      
-      if (data.preferences) setPreferences(data.preferences);
-      if (data.favorites) setFavorites(data.favorites);
-      if (data.users) setUsers(data.users);
-      
-      setImportData('');
-      setShowImport(false);
-    } catch (error) {
-      alert('Invalid data format. Please check the imported data.');
-    }
-  };
 
   // Burger Icon SVG
   const BurgerIcon = () => (
@@ -121,11 +266,98 @@ const LunchPlannerApp = () => {
     </svg>
   );
 
+  // Authentication form 
+  if (!user) {
+    return (
+      <div className="max-w-md mx-auto p-4 bg-gray-50 rounded-lg shadow-md">
+        <div className="flex items-center justify-center mb-4">
+          <BurgerIcon />
+          <h1 className="text-2xl font-bold text-center ml-2">The Hungry IT Team</h1>
+        </div>
+        
+        <div className="bg-white rounded-md shadow-md p-6">
+          <h2 className="text-xl font-semibold mb-4">{isRegistering ? "Create Account" : "Login"}</h2>
+          
+          {authError && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+              {authError}
+            </div>
+          )}
+          
+          <form onSubmit={handleAuth}>
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-1">Email:</label>
+              <input 
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-3 py-2 border rounded-md"
+                required
+              />
+            </div>
+            
+            <div className="mb-6">
+              <label className="block text-sm font-medium mb-1">Password:</label>
+              <input 
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-3 py-2 border rounded-md"
+                required
+                minLength="6"
+              />
+            </div>
+            
+            <button 
+              type="submit"
+              className="w-full bg-orange-500 text-white py-2 px-4 rounded-md hover:bg-orange-600 mb-4"
+            >
+              {isRegistering ? "Sign Up" : "Log In"}
+            </button>
+          </form>
+          
+          <button
+            onClick={() => setIsRegistering(!isRegistering)}
+            className="w-full text-center text-blue-500 hover:text-blue-700"
+          >
+            {isRegistering ? "Already have an account? Log in" : "Need an account? Sign up"}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="max-w-md mx-auto p-4 text-center">
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  // Main app
   return (
     <div className="max-w-md mx-auto p-4 bg-gray-50 rounded-lg shadow-md">
       <div className="flex items-center justify-center mb-4">
         <BurgerIcon />
         <h1 className="text-2xl font-bold text-center ml-2">The Hungry IT Team</h1>
+      </div>
+      
+      {/* User info */}
+      <div className="mb-4 p-3 bg-white rounded-md shadow-md">
+        <div className="flex justify-between items-center">
+          <div>
+            <span className="text-sm text-gray-500">Logged in as:</span>
+            <div className="font-medium truncate">{user.email}</div>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="bg-gray-200 text-gray-700 px-3 py-1 rounded-md hover:bg-gray-300"
+          >
+            Log Out
+          </button>
+        </div>
       </div>
       
       {/* Date Selector */}
@@ -311,55 +543,6 @@ const LunchPlannerApp = () => {
           </div>
         </>
       )}
-      
-      {/* Sharing Controls - Moved to bottom */}
-      <div className="mt-6 p-3 bg-white rounded-md shadow-md">
-        <h2 className="text-lg font-semibold mb-2">Share with Coworkers</h2>
-        <div className="flex space-x-2 mb-2">
-          <button 
-            onClick={exportData} 
-            className="bg-orange-500 text-white px-3 py-2 rounded-md hover:bg-orange-600 flex-1"
-          >
-            Export Data
-          </button>
-          <button 
-            onClick={() => setShowImport(!showImport)} 
-            className="bg-orange-500 text-white px-3 py-2 rounded-md hover:bg-orange-600 flex-1"
-          >
-            Import Data
-          </button>
-        </div>
-        
-        {shareLink && (
-          <div className="mb-3">
-            <label className="block text-sm font-medium mb-1">Share this data with coworkers:</label>
-            <textarea
-              value={shareLink}
-              readOnly
-              onClick={(e) => e.target.select()}
-              className="w-full px-3 py-2 border rounded-md text-xs h-24"
-            />
-            <p className="text-xs text-gray-500 mt-1">Copy this text and send it to your coworkers to share your lunch data</p>
-          </div>
-        )}
-        
-        {showImport && (
-          <div className="mb-3">
-            <label className="block text-sm font-medium mb-1">Paste shared data here:</label>
-            <textarea
-              value={importData}
-              onChange={(e) => setImportData(e.target.value)}
-              className="w-full px-3 py-2 border rounded-md text-xs h-24"
-            />
-            <button 
-              onClick={handleImport} 
-              className="mt-2 bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600"
-            >
-              Import
-            </button>
-          </div>
-        )}
-      </div>
     </div>
   );
 };
