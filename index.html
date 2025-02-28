@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lunch Order Collector</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Google API Scripts -->
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://accounts.google.com/gsi/client"></script>
+    <!-- Google Maps JavaScript API with Places library -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBvurpo433IqQFAasjdf1PLHEvEVoddWK4&libraries=places&callback=initPlacesAPI" async defer></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Lunch Order Collector</h1>
+        
+        <!-- Google Authentication Buttons -->
+        <div class="auth-buttons">
+            <button id="authorize_button" style="display: none;">Sign In with Google</button>
+            <button id="signout_button" style="display: none;">Sign Out</button>
+        </div>
+        
+        <div class="restaurant-selection">
+            <label for="restaurantSearch">Search for a Restaurant:</label>
+            <div class="search-container">
+                <input type="text" id="restaurantSearch" placeholder="Type to search for restaurants...">
+                <button id="searchButton">Search</button>
+            </div>
+            
+            <div id="restaurantResults" class="restaurant-results">
+                <!-- Restaurant search results will appear here -->
+            </div>
+            
+            <div class="or-divider">
+                <span>OR</span>
+            </div>
+            
+            <label for="restaurantSelect">Select from Common Restaurants:</label>
+            <select id="restaurantSelect">
+                <option value="">-- Select a restaurant --</option>
+                <option value="Burger Place">Burger Place</option>
+                <option value="Pizza Corner">Pizza Corner</option>
+                <option value="Sushi Bar">Sushi Bar</option>
+                <option value="Taco Shop">Taco Shop</option>
+                <option value="Salad Bowl">Salad Bowl</option>
+                <!-- Add more restaurants as needed -->
+            </select>
+        </div>
+        
+        <div class="order-input">
+            <input type="text" id="nameInput" placeholder="Your name...">
+            <input type="text" id="orderInput" placeholder="Your order...">
+            <input type="text" id="priceInput" placeholder="Price (optional)">
+            <div class="favorite-actions">
+                <button id="addOrder">Add Order</button>
+                <button id="saveAsFavorite" title="Save as favorite order for this restaurant">
+                    <span class="heart-icon">♥</span> Save as Favorite
+                </button>
+            </div>
+        </div>
+        
+        <div class="favorites-section">
+            <h3>Your Favorite Orders</h3>
+            <div id="favoritesList" class="favorites-list">
+                <!-- Favorite orders will be listed here -->
+                <div class="no-favorites">No favorites saved yet</div>
+            </div>
+        </div>
+        
+        <div class="order-summary">
+            <h2>Today's Orders</h2>
+            <div id="selectedRestaurant" class="selected-restaurant">No restaurant selected</div>
+            <ul id="orderList" class="order-list">
+                <!-- Orders will be added here dynamically -->
+            </ul>
+            <div class="order-totals">
+                <p>Total Orders: <span id="totalOrders">0</span></p>
+                <p>Total Price: $<span id="totalPrice">0.00</span></p>
+            </div>
+        </div>
+    </div>
+    <script src="googleSheets.js"></script>
+    <script src="placesAPI.js"></script>
+    <script src="favorites.js"></script>
+    <script src="app.js"></script>
+    
+    <script>
+        // Initialize the Google API when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up event listeners for auth buttons
+            document.getElementById('authorize_button').addEventListener('click', handleAuthClick);
+            document.getElementById('signout_button').addEventListener('click', handleSignoutClick);
+            
+            // Initialize Google API
+            initializeGoogleAPI();
+            initializeGoogleIdentity();
+        });
+    </script>
+</body>
+</html> 
