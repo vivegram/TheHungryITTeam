@@ -34,22 +34,39 @@ This is a web application built with HTML, CSS, and JavaScript that helps collec
    a. **Create a Google Cloud Project**:
    - Go to the [Google Cloud Console](https://console.cloud.google.com/)
    - Create a new project
-   - Enable the Google Sheets API for your project
+   - Enable the Google Sheets API for your project:
+     - In the left sidebar, click on "APIs & Services" > "Library"
+     - Search for "Google Sheets API"
+     - Click on it and then click "Enable"
 
    b. **Create API Credentials**:
    - In your Google Cloud project, go to "APIs & Services" > "Credentials"
-   - Create an API Key (restrict it to Google Sheets API only)
-   - Add your application's domain to the authorized JavaScript origins
+   - Click "Create Credentials" and select "API Key"
+   - A new API key will be created. Copy this key.
+   - (Optional but recommended) Restrict the API key:
+     - Click on the newly created API key
+     - Under "API restrictions", select "Restrict key"
+     - Select "Google Sheets API" from the dropdown
+     - Click "Save"
 
    c. **Create a Google Sheet**:
    - Create a new Google Sheet
    - Create a sheet named "Restaurants" with restaurant names in column A
-   - Make sure the sheet is publicly accessible (at least for reading)
+   - Make sure the spreadsheet is publicly accessible:
+     - Click "Share" in the top right corner
+     - Click "Change to anyone with the link"
+     - Make sure "Viewer" is selected
+     - Click "Done"
    - Copy the spreadsheet ID from the URL (it's the long string between /d/ and /edit in the URL)
+     - For example, in `https://docs.google.com/spreadsheets/d/1jyH_xabjV4b_5Kvuh-LYaRSXFkPBsPo3L15cy1WjjOI/edit`, the ID is `1jyH_xabjV4b_5Kvuh-LYaRSXFkPBsPo3L15cy1WjjOI`
 
    d. **Update the Configuration**:
    - Open the `restaurantLoader.js` file
-   - Replace the values for `SPREADSHEET_ID` and `API_KEY` with your actual values
+   - Replace the values for `SPREADSHEET_ID` and `API_KEY` with your actual values:
+     ```javascript
+     const SPREADSHEET_ID = 'your-spreadsheet-id';
+     const API_KEY = 'your-api-key';
+     ```
 
 ## 💻 Usage
 
@@ -95,10 +112,38 @@ The app allows users to save and reuse their favorite orders:
 
 You can run this app locally by opening the `index.html` file in any modern web browser. However, for the Google Sheets API to work properly, you'll need to:
 
-1. Host the app on a web server (even locally)
-2. Configure your Google Cloud project with the correct origins
-3. Set up the API key as described above
-4. Make sure your Google Sheet is publicly accessible for reading
+1. Host the app on a web server (even locally):
+   - You can use Python's built-in HTTP server:
+     ```
+     # Python 3
+     python -m http.server 8000
+     
+     # Python 2
+     python -m SimpleHTTPServer 8000
+     ```
+   - Or use Node.js with a package like `http-server`:
+     ```
+     # Install http-server globally
+     npm install -g http-server
+     
+     # Run the server
+     http-server -p 8000
+     ```
+   - Then open `http://localhost:8000` in your browser
+
+2. Configure your Google Cloud project:
+   - Make sure the Google Sheets API is enabled
+   - If you've restricted your API key to specific domains, add `localhost` to the list of authorized domains
+
+3. Make sure your Google Sheet is publicly accessible:
+   - Anyone with the link should be able to view the sheet
+   - The sheet should have a tab named "Restaurants" with restaurant names in column A
+
+4. If you encounter any issues:
+   - Check the browser console for error messages
+   - Verify that your API key and spreadsheet ID are correct
+   - Ensure that the Google Sheets API is enabled in your Google Cloud project
+   - Make sure your spreadsheet is publicly accessible
 
 ### Customizing the App
 

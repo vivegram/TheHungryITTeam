@@ -40,28 +40,6 @@ h3 {
     font-size: 1.1em;
 }
 
-/* Google Authentication Buttons */
-.auth-buttons {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-}
-
-#authorize_button, #signout_button {
-    padding: 10px 15px;
-    background-color: #4285F4;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    margin: 0 5px;
-}
-
-#authorize_button:hover, #signout_button:hover {
-    background-color: #357ae8;
-}
-
 /* Restaurant Selection */
 .restaurant-selection {
     margin-bottom: 20px;
@@ -335,4 +313,21 @@ h3 {
     font-weight: bold;
     display: flex;
     justify-content: space-between;
+}
+
+.error-message {
+    background-color: #ffebee;
+    color: #c62828;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px 0;
+    text-align: center;
+    font-size: 14px;
+    border-left: 4px solid #c62828;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
 } 
