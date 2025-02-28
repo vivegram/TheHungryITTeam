@@ -6,6 +6,8 @@ This is a web application built with HTML, CSS, and JavaScript that helps collec
 
 - Load restaurants from Google Sheets (no authentication required)
 - Save orders to Google Sheets for easy reference and tracking
+- Beautiful visual feedback with saving indicators and success messages
+- Formatted Google Sheets with headers, timestamps, and auto-sized columns
 - Save favorite orders by restaurant
 - Quickly reuse favorite orders with one click
 - Add orders with name, food item, and price
@@ -13,6 +15,7 @@ This is a web application built with HTML, CSS, and JavaScript that helps collec
 - Track total number of orders and total price
 - Orders are organized by restaurant and date
 - No authentication required
+- Robust error handling with helpful messages
 
 ## 🚀 Getting Started
 
@@ -85,13 +88,15 @@ Orders are saved to Google Sheets for easy reference:
 1. **Saving Orders to Google Sheets**:
    - When you add or delete an order, it's automatically saved to Google Sheets
    - A new sheet is created for each restaurant and date combination (e.g., "McDonald's_2025-02-27")
-   - Each sheet includes columns for Name, Order, and Price
-   - You can access these sheets directly in your Google Spreadsheet to view or export the data
+   - Each sheet includes columns for Name, Order, Price, and Timestamp
+   - The sheets are formatted with colored headers and auto-sized columns for better readability
+   - Visual feedback is provided during saving with a spinner and success/error messages
 
 2. **Order Organization**:
    - Orders are organized by restaurant and date
    - Each day's orders for a specific restaurant are stored in a separate sheet
    - This makes it easy to track orders over time and reference past orders
+   - Headers are frozen for easier navigation when you have many orders
 
 ### Restaurant Management
 
@@ -159,6 +164,7 @@ You can run this app locally by opening the `index.html` file in any modern web 
    - Verify that your API key and spreadsheet ID are correct
    - Ensure that the Google Sheets API is enabled in your Google Cloud project
    - Make sure your spreadsheet is publicly accessible with edit permissions
+   - Look for specific error messages in the app's UI for guidance on fixing issues
 
 ### Customizing the App
 
@@ -181,10 +187,11 @@ You can easily customize this app for your team:
 This application demonstrates several key web development concepts:
 
 - HTML structure and semantic elements
-- CSS styling and layout
+- CSS styling and layout with animations and visual feedback
 - JavaScript DOM manipulation
 - Event handling
 - Google Sheets API integration (read and write)
 - Local storage for user preferences and favorites
 - Asynchronous JavaScript with Promises
+- Error handling and user feedback
 - Responsive design 
