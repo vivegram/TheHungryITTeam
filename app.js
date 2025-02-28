@@ -10,20 +10,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const priceInput = document.getElementById('priceInput');
     const addOrderButton = document.getElementById('addOrder');
     const orderList = document.getElementById('orderList');
-    const restaurantSelect = document.getElementById('restaurantSelect');
-    const selectedRestaurantDisplay = document.getElementById('selectedRestaurant');
-    
-    // Add event listener to the restaurant select dropdown
-    restaurantSelect.addEventListener('change', function() {
-        const selectedRestaurant = restaurantSelect.value;
-        
-        if (selectedRestaurant) {
-            // Use the selectRestaurant function from placesAPI.js
-            selectRestaurant(selectedRestaurant);
-        } else {
-            selectedRestaurantDisplay.textContent = 'No restaurant selected';
-        }
-    });
     
     // Add event listener to the add order button
     addOrderButton.addEventListener('click', addOrder);
@@ -44,8 +30,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const orderText = orderInput.value.trim();
         const priceText = priceInput.value.trim();
         
-        // Get the selected restaurant (either from dropdown or search)
-        const selectedRestaurantText = selectedRestaurantDisplay.textContent;
+        // Get the selected restaurant
+        const selectedRestaurantText = document.getElementById('selectedRestaurant').textContent;
         const selectedRestaurant = selectedRestaurantText.startsWith('Selected:') 
             ? selectedRestaurantText.replace('Selected:', '').trim() 
             : '';
@@ -72,10 +58,8 @@ document.addEventListener('DOMContentLoaded', function() {
         orderInput.value = '';
         priceInput.value = '';
         
-        // Save orders to Google Sheets if authenticated
-        if (gapi.client && gapi.client.getToken() !== null) {
-            saveOrdersToSheet(selectedRestaurant);
-        }
+        // Save orders to local storage
+        saveOrdersToStorage(selectedRestaurant);
     }
     
     // Function to create a new order element
@@ -115,14 +99,14 @@ document.addEventListener('DOMContentLoaded', function() {
             window.totalPrice -= price;
             updateTotals();
             
-            // Save orders to Google Sheets if authenticated
-            const selectedRestaurantText = selectedRestaurantDisplay.textContent;
+            // Save orders to local storage
+            const selectedRestaurantText = document.getElementById('selectedRestaurant').textContent;
             const selectedRestaurant = selectedRestaurantText.startsWith('Selected:') 
                 ? selectedRestaurantText.replace('Selected:', '').trim() 
                 : '';
                 
-            if (gapi.client && gapi.client.getToken() !== null && selectedRestaurant) {
-                saveOrdersToSheet(selectedRestaurant);
+            if (selectedRestaurant) {
+                saveOrdersToStorage(selectedRestaurant);
             }
         });
         
@@ -144,9 +128,46 @@ document.addEventListener('DOMContentLoaded', function() {
         updateTotals();
     };
     
+    // Function to save orders to local storage
+    function saveOrdersToStorage(restaurant) {
+        // Get today's date in YYYY-MM-DD format
+        const today = new Date().toISOString().split('T')[0];
+        
+        // Get all order items
+        const orderItems = document.querySelectorAll('.order-item');
+        
+        // Create an array to store orders
+        const orders = [];
+        
+        // Loop through order items and save their details
+        orderItems.forEach(function(orderItem) {
+            const name = orderItem.querySelector('.order-name').textContent;
+            const orderText = orderItem.querySelector('.order-text').textContent;
+            const priceText = orderItem.querySelector('.order-price').textContent;
+            
+            // Extract price value (remove $ and convert to number)
+            let price = 0;
+            if (priceText) {
+                price = parseFloat(priceText.replace('$', '')) || 0;
+            }
+            
+            orders.push({
+                name,
+                orderText,
+                price
+            });
+        });
+        
+        // Save to local storage
+        localStorage.setItem(`orders_${restaurant}_${today}`, JSON.stringify(orders));
+    }
+    
     // Function to update the totals display
     window.updateTotals = function() {
         document.getElementById('totalOrders').textContent = window.totalOrders;
         document.getElementById('totalPrice').textContent = window.totalPrice.toFixed(2);
     };
+    
+    // Make functions available globally
+    window.saveOrdersToStorage = saveOrdersToStorage;
 }); 

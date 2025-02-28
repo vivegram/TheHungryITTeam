@@ -65,6 +65,17 @@ h3 {
 /* Restaurant Selection */
 .restaurant-selection {
     margin-bottom: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 15px;
+}
+
+.restaurant-selection h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #444;
+    font-size: 1.3em;
+    text-align: center;
 }
 
 .restaurant-selection label {
@@ -73,13 +84,17 @@ h3 {
     font-weight: bold;
 }
 
-/* Restaurant Search */
-.search-container {
-    display: flex;
-    margin-bottom: 10px;
+/* Restaurant Add */
+.restaurant-add {
+    margin-bottom: 15px;
 }
 
-#restaurantSearch {
+.add-restaurant-container {
+    display: flex;
+    margin-bottom: 15px;
+}
+
+#newRestaurantInput {
     flex: 1;
     padding: 10px;
     border: 1px solid #ddd;
@@ -87,7 +102,7 @@ h3 {
     font-size: 16px;
 }
 
-#searchButton {
+#addRestaurantButton {
     padding: 10px 15px;
     background-color: #4285F4;
     color: white;
@@ -97,71 +112,13 @@ h3 {
     font-size: 16px;
 }
 
-#searchButton:hover {
+#addRestaurantButton:hover {
     background-color: #357ae8;
 }
 
-.restaurant-results {
-    max-height: 200px;
-    overflow-y: auto;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    display: none; /* Hidden by default, shown when results are available */
-}
-
-.restaurant-item {
-    padding: 10px;
-    border-bottom: 1px solid #eee;
-    cursor: pointer;
-}
-
-.restaurant-item:hover {
-    background-color: #f5f5f5;
-}
-
-.restaurant-item:last-child {
-    border-bottom: none;
-}
-
-.restaurant-name {
-    font-weight: bold;
-}
-
-.restaurant-address {
-    font-size: 0.9em;
-    color: #666;
-}
-
-.or-divider {
-    text-align: center;
-    margin: 15px 0;
-    position: relative;
-}
-
-.or-divider::before, .or-divider::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    width: 45%;
-    height: 1px;
-    background-color: #ddd;
-}
-
-.or-divider::before {
-    left: 0;
-}
-
-.or-divider::after {
-    right: 0;
-}
-
-.or-divider span {
-    background-color: white;
-    padding: 0 10px;
-    position: relative;
-    z-index: 1;
-    color: #888;
+/* Restaurant List */
+.restaurant-list-container {
+    margin-bottom: 10px;
 }
 
 #restaurantSelect {
