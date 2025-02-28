@@ -1,16 +1,16 @@
 # Lunch Order Collector
 
-This is a web application built with HTML, CSS, and JavaScript that helps collect and organize lunch orders from coworkers. It loads restaurants from Google Sheets and saves orders locally for easy tracking.
+This is a web application built with HTML, CSS, and JavaScript that helps collect and organize lunch orders from coworkers. It loads restaurants from Google Sheets and saves orders to Google Sheets for easy tracking and reference.
 
 ## 🌟 Features
 
 - Load restaurants from Google Sheets (no authentication required)
+- Save orders to Google Sheets for easy reference and tracking
 - Save favorite orders by restaurant
 - Quickly reuse favorite orders with one click
 - Add orders with name, food item, and price
 - Delete orders if needed
 - Track total number of orders and total price
-- Orders are saved in local storage
 - Orders are organized by restaurant and date
 - No authentication required
 
@@ -19,7 +19,7 @@ This is a web application built with HTML, CSS, and JavaScript that helps collec
 ### Prerequisites
 
 - A modern web browser
-- A Google Cloud project with the Google Sheets API enabled (for restaurant data)
+- A Google Cloud project with the Google Sheets API enabled (for restaurant data and order saving)
 
 ### Setup
 
@@ -55,14 +55,14 @@ This is a web application built with HTML, CSS, and JavaScript that helps collec
    - Make sure the spreadsheet is publicly accessible:
      - Click "Share" in the top right corner
      - Click "Change to anyone with the link"
-     - Make sure "Viewer" is selected
+     - Make sure "Editor" is selected (this is required for saving orders)
      - Click "Done"
    - Copy the spreadsheet ID from the URL (it's the long string between /d/ and /edit in the URL)
      - For example, in `https://docs.google.com/spreadsheets/d/1jyH_xabjV4b_5Kvuh-LYaRSXFkPBsPo3L15cy1WjjOI/edit`, the ID is `1jyH_xabjV4b_5Kvuh-LYaRSXFkPBsPo3L15cy1WjjOI`
 
    d. **Update the Configuration**:
-   - Open the `restaurantLoader.js` file
-   - Replace the values for `SPREADSHEET_ID` and `API_KEY` with your actual values:
+   - Open the `restaurantLoader.js` and `orderSaver.js` files
+   - Replace the values for `SPREADSHEET_ID` and `API_KEY` with your actual values in both files:
      ```javascript
      const SPREADSHEET_ID = 'your-spreadsheet-id';
      const API_KEY = 'your-api-key';
@@ -76,7 +76,22 @@ This is a web application built with HTML, CSS, and JavaScript that helps collec
 4. Enter your name, your order, and the price (optional)
 5. Click the "Add Order" button to add your order to the list
 6. The app will automatically calculate the total number of orders and total price
-7. All orders are saved to local storage and organized by restaurant and date
+7. All orders are saved to Google Sheets and organized by restaurant and date
+
+### Order Management
+
+Orders are saved to Google Sheets for easy reference:
+
+1. **Saving Orders to Google Sheets**:
+   - When you add or delete an order, it's automatically saved to Google Sheets
+   - A new sheet is created for each restaurant and date combination (e.g., "McDonald's_2025-02-27")
+   - Each sheet includes columns for Name, Order, and Price
+   - You can access these sheets directly in your Google Spreadsheet to view or export the data
+
+2. **Order Organization**:
+   - Orders are organized by restaurant and date
+   - Each day's orders for a specific restaurant are stored in a separate sheet
+   - This makes it easy to track orders over time and reference past orders
 
 ### Restaurant Management
 
@@ -136,14 +151,14 @@ You can run this app locally by opening the `index.html` file in any modern web 
    - If you've restricted your API key to specific domains, add `localhost` to the list of authorized domains
 
 3. Make sure your Google Sheet is publicly accessible:
-   - Anyone with the link should be able to view the sheet
+   - Anyone with the link should be able to edit the sheet (required for saving orders)
    - The sheet should have a tab named "Restaurants" with restaurant names in column A
 
 4. If you encounter any issues:
    - Check the browser console for error messages
    - Verify that your API key and spreadsheet ID are correct
    - Ensure that the Google Sheets API is enabled in your Google Cloud project
-   - Make sure your spreadsheet is publicly accessible
+   - Make sure your spreadsheet is publicly accessible with edit permissions
 
 ### Customizing the App
 
@@ -169,7 +184,7 @@ This application demonstrates several key web development concepts:
 - CSS styling and layout
 - JavaScript DOM manipulation
 - Event handling
-- Google Sheets API integration (read-only)
-- Local storage for user data and preferences
+- Google Sheets API integration (read and write)
+- Local storage for user preferences and favorites
 - Asynchronous JavaScript with Promises
 - Responsive design 

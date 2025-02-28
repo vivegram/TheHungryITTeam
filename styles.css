@@ -327,6 +327,18 @@ h3 {
     animation: fadeIn 0.3s ease-in-out;
 }
 
+.success-message {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px 0;
+    text-align: center;
+    font-size: 14px;
+    border-left: 4px solid #2e7d32;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-10px); }
     to { opacity: 1; transform: translateY(0); }

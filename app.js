@@ -58,8 +58,8 @@ document.addEventListener('DOMContentLoaded', function() {
         orderInput.value = '';
         priceInput.value = '';
         
-        // Save orders to local storage
-        saveOrdersToStorage(selectedRestaurant);
+        // Save orders to Google Sheets
+        saveOrdersToGoogleSheets(selectedRestaurant);
     }
     
     // Function to create a new order element
@@ -99,14 +99,14 @@ document.addEventListener('DOMContentLoaded', function() {
             window.totalPrice -= price;
             updateTotals();
             
-            // Save orders to local storage
+            // Save orders to Google Sheets
             const selectedRestaurantText = document.getElementById('selectedRestaurant').textContent;
             const selectedRestaurant = selectedRestaurantText.startsWith('Selected:') 
                 ? selectedRestaurantText.replace('Selected:', '').trim() 
                 : '';
                 
             if (selectedRestaurant) {
-                saveOrdersToStorage(selectedRestaurant);
+                saveOrdersToGoogleSheets(selectedRestaurant);
             }
         });
         
@@ -128,11 +128,8 @@ document.addEventListener('DOMContentLoaded', function() {
         updateTotals();
     };
     
-    // Function to save orders to local storage
-    function saveOrdersToStorage(restaurant) {
-        // Get today's date in YYYY-MM-DD format
-        const today = new Date().toISOString().split('T')[0];
-        
+    // Function to save orders to Google Sheets
+    function saveOrdersToGoogleSheets(restaurant) {
         // Get all order items
         const orderItems = document.querySelectorAll('.order-item');
         
@@ -158,8 +155,8 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
         
-        // Save to local storage
-        localStorage.setItem(`orders_${restaurant}_${today}`, JSON.stringify(orders));
+        // Use the orderSaver.js function to save to Google Sheets
+        saveOrdersToSheet(restaurant, orders);
     }
     
     // Function to update the totals display
@@ -169,5 +166,5 @@ document.addEventListener('DOMContentLoaded', function() {
     };
     
     // Make functions available globally
-    window.saveOrdersToStorage = saveOrdersToStorage;
+    window.saveOrdersToGoogleSheets = saveOrdersToGoogleSheets;
 }); 
