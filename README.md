@@ -5,7 +5,8 @@ This is a web application built with HTML, CSS, and JavaScript that helps collec
 ## 🌟 Features
 
 - Load restaurants from Google Sheets (no authentication required)
-- Save orders to Google Sheets for easy reference and tracking
+- Save all orders to a single, filterable Google Sheet
+- Built-in filters for date, restaurant, and other order details
 - Beautiful visual feedback with saving indicators and success messages
 - Formatted Google Sheets with headers, timestamps, and auto-sized columns
 - Save favorite orders by restaurant
@@ -87,16 +88,20 @@ Orders are saved to Google Sheets for easy reference:
 
 1. **Saving Orders to Google Sheets**:
    - When you add or delete an order, it's automatically saved to Google Sheets
-   - A new sheet is created for each restaurant and date combination (e.g., "McDonald's_2025-02-27")
-   - Each sheet includes columns for Name, Order, Price, and Timestamp
-   - The sheets are formatted with colored headers and auto-sized columns for better readability
+   - All orders are stored in a single "Orders" sheet with columns for Date, Restaurant, Name, Order, Price, and Timestamp
+   - The sheet includes built-in filters to easily sort and filter orders by any column
+   - The sheet is formatted with colored headers and auto-sized columns for better readability
    - Visual feedback is provided during saving with a spinner and success/error messages
 
-2. **Order Organization**:
-   - Orders are organized by restaurant and date
-   - Each day's orders for a specific restaurant are stored in a separate sheet
-   - This makes it easy to track orders over time and reference past orders
+2. **Order Organization and Filtering**:
+   - Orders are organized in a single sheet with all necessary information
+   - Use the built-in filters to:
+     - View orders for a specific date
+     - Filter by restaurant name
+     - Find orders from a specific person
+     - Sort by price or timestamp
    - Headers are frozen for easier navigation when you have many orders
+   - When adding new orders for a restaurant on a specific date, any existing orders for that combination are automatically updated
 
 ### Restaurant Management
 
@@ -178,7 +183,7 @@ You can easily customize this app for your team:
    - Change the styling in the CSS file to match your company branding
 
 3. **Add Features**:
-   - Implement order sorting or filtering
+   - Implement additional filtering or sorting options
    - Add a feature to export the day's orders as a PDF
    - Create a view for order history
 
@@ -191,6 +196,7 @@ This application demonstrates several key web development concepts:
 - JavaScript DOM manipulation
 - Event handling
 - Google Sheets API integration (read and write)
+- Data filtering and organization
 - Local storage for user preferences and favorites
 - Asynchronous JavaScript with Promises
 - Error handling and user feedback
