@@ -17,6 +17,11 @@ This is a web application built with HTML, CSS, and JavaScript that helps collec
 - Orders are organized by restaurant and date
 - No authentication required
 - Robust error handling with helpful messages
+- **Restaurant Selection**: Choose from a list of restaurants loaded from Google Sheets
+- **Order Management**: Add and remove orders with names and prices
+- **Favorites System**: Save and quickly access favorite restaurants
+- **Weekly Reports**: Generate comprehensive weekly reports with statistics and analytics
+- **Google Sheets Integration**: All data is automatically saved to Google Sheets
 
 ## 🚀 Getting Started
 
@@ -130,6 +135,27 @@ The app allows users to save and reuse their favorite orders:
    - Click on any favorite to automatically fill in the order form
    - If the restaurant doesn't match the currently selected one, you'll be asked if you want to switch
    - You can then click "Add Order" to add it to the current order list
+
+## Weekly Reports
+
+The app includes a powerful weekly report feature that provides insights into lunch orders:
+
+1. Click the "Generate Weekly Report" button to create a new report
+2. The report includes:
+   - Total number of orders for the week
+   - Total amount spent
+   - Average order price
+   - Orders broken down by restaurant
+   - Orders broken down by person
+   - Daily totals
+
+The report is automatically formatted with:
+- Clear section headers
+- Color-coded sections
+- Proper number formatting
+- Easy-to-read date ranges
+
+Reports are saved in a separate "Weekly Report" sheet in your Google Spreadsheet, making it easy to track trends and analyze spending patterns.
 
 ## 🛠️ Development
 

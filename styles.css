@@ -373,4 +373,47 @@ h3 {
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-10px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+/* Weekly Report Styles */
+.report-section {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.report-button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.report-button:hover {
+    background-color: #45a049;
+}
+
+.report-button i {
+    font-size: 18px;
+}
+
+/* Loading indicator for report generation */
+.report-button.loading {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.report-button.loading i {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 } 
